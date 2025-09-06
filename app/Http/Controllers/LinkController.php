@@ -107,12 +107,13 @@ class LinkController extends Controller
     /**
      * Restore a deleted link
      */
-    public function restore(Link $link)
+    public function restore(Request $request, $link)
     {
-        DB:beginTransaction();
+        DB::beginTransaction();
         try
         {
-            $link->restore();
+            $all = Link::withTrashed()->find($link);
+            $all->restore();
             DB::commit();
             return $this->successResponse([
                 "restored" => true
