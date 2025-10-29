@@ -17,7 +17,7 @@ class UserController extends Controller
             "name" => "string|required",
             "lastname" => "string|required",
             "email" => "string|required|email|unique:users,email",
-            "password" => "string|required"
+            "password" => "string|required|confirm"
         ];
 
         $messages = [
@@ -30,7 +30,8 @@ class UserController extends Controller
             "email.email" => "Email is not valid",
             "email.users" => "Email already exists",
             "password.string" => "Password field should be string",
-            "password.required" => "Password field is required"
+            "password.required" => "Password field is required",
+            "password.confirm" => "Password is not confirmed"
         ];
 
         $this->validate($request,$rules,$messages);

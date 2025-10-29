@@ -6,9 +6,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LinkController;
+use App\Http\Controllers\PasswordResetController;
 
 Route::post("login", [AuthController::class, "login"]);
 Route::post("register", [UserController::class, "register"]);
+Route::post('forgot-password', [PasswordResetController::class,'sendResetLink']);
+Route::post('reset-password', [PasswordResetController::class, 'resetPassword']);
 
 Route::middleware(["auth:sanctum"])->group(function(){
     Route::get("logout",[AuthController::class,"logout"]);
