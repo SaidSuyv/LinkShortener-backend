@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AuthResource;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use App\Models\User;
@@ -17,7 +18,7 @@ class UserController extends Controller
             "name" => "string|required",
             "lastname" => "string|required",
             "email" => "string|required|email|unique:users,email",
-            "password" => "string|required|confirm"
+            "password" => "string|required|confirmed"
         ];
 
         $messages = [
@@ -31,7 +32,7 @@ class UserController extends Controller
             "email.users" => "Email already exists",
             "password.string" => "Password field should be string",
             "password.required" => "Password field is required",
-            "password.confirm" => "Password is not confirmed"
+            "password.confirmed" => "Password is not confirmed"
         ];
 
         $this->validate($request,$rules,$messages);
@@ -46,6 +47,7 @@ class UserController extends Controller
         $token = $user->createToken("auth_token")->plainTextToken;
 
         return $this->successResponse([
+            "user" => new AuthResource($user),
             "token" => $token
         ]);
     }
