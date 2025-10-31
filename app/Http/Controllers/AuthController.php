@@ -15,15 +15,13 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $rules = [
-            'email' => 'string|required|email',
-            'password' => 'string|required'
+            'email' => 'required|email',
+            'password' => 'required'
         ];
 
         $messages = [
-            'email.string' => 'The email is not a text',
             'email.required' => 'The email field is required',
             'email.email' => 'The email is not valid',
-            'password.string' => 'The password is not text',
             'password.required' => 'The password field is required'
         ];
 

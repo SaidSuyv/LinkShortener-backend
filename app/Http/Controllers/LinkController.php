@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Link;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class LinkController extends Controller
@@ -38,7 +39,7 @@ class LinkController extends Controller
             "original_url" => $request->url
         ]);
         return $this->successResponse([
-            "shorten" => url($link->code)
+            "shorten" => url('/link/'.$link->code)
         ],201);
     }
 

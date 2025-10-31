@@ -15,24 +15,20 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $rules = [
-            "name" => "string|required",
-            "lastname" => "string|required",
-            "email" => "string|required|email|unique:users,email",
-            "password" => "string|required|confirmed"
+            "name" => "required",
+            "lastname" => "required",
+            "email" => "required|email|unique:users,email",
+            "password" => "required|confirmed"
         ];
 
         $messages = [
-            "name.string" => "Name field should be a string",
-            "name.required" => "Name field is required",
-            "lastname.string" => "Lastname field should be a string",
-            "lastname.required" => "Lastname field is required",
-            "email.string" => "Email field should be a string",
-            "email.required" => "Email field is required",
-            "email.email" => "Email is not valid",
-            "email.users" => "Email already exists",
-            "password.string" => "Password field should be string",
-            "password.required" => "Password field is required",
-            "password.confirmed" => "Password is not confirmed"
+            "name.required" => "Datos personales incompletos",
+            "lastname.required" => "Datos personales incompletos",
+            "email.required" => "El correo electrónico es un campo obligatorio",
+            "email.email" => "El correo no es válido",
+            "email.users" => "El correo ingresado ya existe",
+            "password.required" => "La contraseña es obligatoria",
+            "password.confirmed" => "Campos requeridos incompletos"
         ];
 
         $this->validate($request,$rules,$messages);
