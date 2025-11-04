@@ -66,7 +66,7 @@ class LinkController extends Controller
                 "url" => "string|required"
             ];
             $messages = [
-                "url.string" => "URL muwt be a string",
+                "url.string" => "URL must be a string",
                 "url.required" => "URL is required"
             ];
             $this->validate($request, $rules, $messages);

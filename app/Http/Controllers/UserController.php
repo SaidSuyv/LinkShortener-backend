@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AuthResource;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use App\Models\User;
@@ -46,5 +47,12 @@ class UserController extends Controller
             "user" => new AuthResource($user),
             "token" => $token
         ]);
+    }
+
+    public function getBasicData(Request $request)
+    {
+        $user = auth()->user();
+
+        return $this->successResponse(new UserResource($user));
     }
 }
