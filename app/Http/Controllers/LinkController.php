@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class LinkController extends Controller
 {
@@ -35,8 +37,11 @@ class LinkController extends Controller
         $this->validate($request, $rules, $messages);
         // Create link
         $user = $request->user();
+        $expiration_at = Carbon::now('UTC')->addDays(15);
+        Log::info("expiration_at",["time"=>$expiration_at]);
         $link = $user->links()->create([
-            "original_url" => $request->url
+            "original_url" => $request->url,
+            "expiration_at" => $expiration_at
         ]);
         return $this->successResponse([
             "shorten" => url('/link/'.$link->code)

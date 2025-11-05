@@ -13,7 +13,8 @@ class Link extends Model
     protected $fillable = [
         "user_id",
         "original_url",
-        "code"
+        "code",
+        "expiration_at",
     ];
 
     protected static function booted() {
