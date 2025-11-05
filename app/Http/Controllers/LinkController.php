@@ -18,7 +18,23 @@ class LinkController extends Controller
      */
     public function index(Request $request)
     {
-        $links = $request->user()->links;
+        $links = [];
+        if(!empty($request->query('state')))
+        {
+            $state = $request->query('state');
+            switch($state) {
+                case 'active':
+                    $links = $request->user()->links;
+                    break;
+                case 'inactive':
+                    $links = $request->user()->links()->onlyTrashed()->get();
+                    break;
+                default:
+                    $links = $request->user()->links;
+            }
+        }
+        else
+            $links = $request->user()->links;
         return $this->successResponse($links);
     }
 
