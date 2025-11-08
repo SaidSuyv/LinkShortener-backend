@@ -108,12 +108,18 @@ class LinkController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Link $link)
+    public function destroy(Request $request, $id)
     {
         DB::beginTransaction();
         try
         {
-            $link->delete();
+            $link = Link::withTrashed()->findOrFail($id);
+
+            if($request->has('hard'))
+                $link->forceDelete();
+            else
+                $link->delete();
+
             DB::commit();
             return $this->successResponse([
                 "deleted" => true

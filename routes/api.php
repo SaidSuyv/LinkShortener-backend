@@ -29,7 +29,7 @@ Route::middleware(["auth:sanctum"])->group(function(){
         Route::post("/","store");
         Route::get("/{code}","show");
         Route::put("/{link}","update");
-        Route::delete("/{link}","destroy");
+        Route::delete("/{id}","destroy");
         Route::post("/restore/{link}","restore");
     });
 });
