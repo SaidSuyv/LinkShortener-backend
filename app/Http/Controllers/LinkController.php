@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use App\Jobs\DeleteItemsJob;
+use Throwable;
 
 class LinkController extends Controller
 {
@@ -200,7 +201,7 @@ class LinkController extends Controller
 
         $items->chunk(50)
               ->each(function ($chunk) use ($batch) {
-                $batch->add(new DeleteItemsJob($chunk->toArray());
+                $batch->add(new DeleteItemsJob($chunk->toArray()));
               });
 
         return $this->successResponse([

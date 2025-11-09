@@ -31,5 +31,8 @@ Route::middleware(["auth:sanctum"])->group(function(){
         Route::put("/{link}","update");
         Route::delete("/{id}","destroy");
         Route::post("/restore/{link}","restore");
+
+        // Bulk Routes
+        Route::post('/bulk','deleteBulk');
     });
 });
