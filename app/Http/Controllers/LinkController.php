@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
+use Illuminate\Bus\Batch;
+use Illuminate\Support\Facades\Bus;
+use App\Jobs\DeleteItemsJob;
+
 class LinkController extends Controller
 {
     use ApiResponser;
@@ -152,5 +156,56 @@ class LinkController extends Controller
             DB::rollBack();
             return $this->errorResponse($e->getMessage());
         }
+    }
+
+    /**
+     *  Checks Batch Status
+     */
+    public function batchStatus($id)
+    {
+        $batch = Bus::findBatch($id);
+
+        if(!$batch)
+            return $this->errorResponse("Batch no encontrado", 404);
+
+        return $this->successResponse([
+            'id' => $batch->id,
+            'total_jobs' => $batch->totalJobs,
+            'pending_jobs' => $batch->pendingJobs,
+            'failed_jobs' => $batch->failedJobs,
+            'progress' => $batch->progress(),
+            'finished' => $batch->finished()
+        ]);
+    }
+
+    /**
+     *  Deletes in bulk
+     */
+    public function deleteBulk(Request $request)
+    {
+        $items = collect($request->items);
+
+        $batch = Bus::batch([])
+            ->then(function (Batch $bt) {
+                // Batch completado
+                Log::info("Batch completado: {$bt->id}");
+            })
+            ->catch(function (Batch $bt, Throwable $e) {
+                Log::error("Batch falló: {$bt->id}, error: {$e->getMessage()}");
+            })
+            ->finally(function (Batch $bt) {
+                Log::info("Batch finalizado: {$bt->id}");
+            })
+            ->dispatch();
+
+        $items->chunk(50)
+              ->each(function ($chunk) use ($batch) {
+                $batch->add(new DeleteItemsJob($chunk->toArray());
+              });
+
+        return $this->successResponse([
+            "batch_id" => $batch->id,
+            "message" => "Eliminación masiva en progreso. Puedes consultar el progreso del batch."
+        ]);
     }
 }
