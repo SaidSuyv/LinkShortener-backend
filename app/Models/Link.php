@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Link extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         "user_id",
@@ -19,8 +20,9 @@ class Link extends Model
 
     protected static function booted() {
         static::created(function($shorturl){
-            $shorturl->code = self::encodeBase62($shorturl->id);
-            $shorturl->save();
+            $shorturl->updateQuietly([
+                'code' => self::encodeBase62($shorturl->id)
+            ]);
         });
     }
 

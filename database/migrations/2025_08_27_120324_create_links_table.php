@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("user_id")->constrained()->onDelete("cascade");
             $table->text("original_url");
-            $table->string("code", 10)->unique()->nullable();
+            $table->string("code")->collation('utf8mb4_bin')->unique()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

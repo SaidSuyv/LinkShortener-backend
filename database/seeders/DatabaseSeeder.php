@@ -22,5 +22,9 @@ class DatabaseSeeder extends Seeder
             'email' => 'sirsuyvi@gmail.com',
             'password' => Hash::make('saidsuyv')
         ]);
+
+        $this->call([
+            LinkSeeder::class
+        ]);
     }
 }
