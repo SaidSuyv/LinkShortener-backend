@@ -171,9 +171,6 @@ class LinkController extends Controller
 
         return $this->successResponse([
             'id' => $batch->id,
-            'total_jobs' => $batch->totalJobs,
-            'pending_jobs' => $batch->pendingJobs,
-            'failed_jobs' => $batch->failedJobs,
             'progress' => $batch->progress(),
             'finished' => $batch->finished()
         ]);
@@ -186,7 +183,7 @@ class LinkController extends Controller
     {
         $items = collect($request->items);
 
-        $batch = Bus::batch([])
+        $pendingBatch = Bus::batch([])
             ->then(function (Batch $bt) {
                 // Batch completado
                 Log::info("Batch completado: {$bt->id}");
@@ -196,13 +193,14 @@ class LinkController extends Controller
             })
             ->finally(function (Batch $bt) {
                 Log::info("Batch finalizado: {$bt->id}");
-            })
-            ->dispatch();
+            });
 
         $items->chunk(50)
-              ->each(function ($chunk) use ($batch) {
-                $batch->add(new DeleteItemsJob($chunk->toArray()));
+              ->each(function ($chunk) use ($pendingBatch) {
+                $pendingBatch->add(new DeleteItemsJob($chunk->toArray()));
               });
+
+        $batch = $pendingBatch->dispatch();
 
         return $this->successResponse([
             "batch_id" => $batch->id,

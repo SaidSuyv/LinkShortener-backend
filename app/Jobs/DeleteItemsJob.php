@@ -9,10 +9,11 @@ use App\Models\Link;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Bus\Batchable;
 
 class DeleteItemsJob implements ShouldQueue
 {
-    use Queueable, InteractsWithQueue, Dispatchable, SerializesModels;
+    use Queueable, InteractsWithQueue, Dispatchable, SerializesModels, Batchable;
 
     public array $items;
     /**
