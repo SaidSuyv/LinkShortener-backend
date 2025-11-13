@@ -1,61 +1,112 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Link Shortener by SaidSuyv
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Version: 0.0.1
 
-## About Laravel
+# Description
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This is the API for the project Link Shortened developed by SaidSuyv.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+# How to install in production
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Clone this repository
 
-## Learning Laravel
+`git clone <link> api.link.<domain.com>`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Install dependencies
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+`composer install`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Run migrations
 
-## Laravel Sponsors
+`php artisan migrate`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Keep queues alive
 
-### Premium Partners
+### systemd / Unix Systems
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1. Create linkshortener.service file
 
-## Contributing
+**IMPORTANT: CHANGE ALL PATHS**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```text
+[Unit]
+Description=LinkShortener - Laravel Queue Worker
+After=network.target
 
-## Code of Conduct
+[Service]
+User=www-data
+Group=www-data
+Restart=always
+ExecStart=/usr/bin/php /var/www/tu_proyecto/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+WorkingDirectory=/var/www/tu_proyecto
+StandardOutput=append:/var/www/tu_proyecto/storage/logs/queue.log
+StandardError=append:/var/www/tu_proyecto/storage/logs/queue-error.log
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+[Install]
+WantedBy=multi-user.target
+```
 
-## Security Vulnerabilities
+2. Move the file to the correct systemd path
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+`sudo mv linkshortener.service /etc/systemd/system/`
 
-## License
+3. Active the service
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```shell
+sudo systemctl daemon-reload
+sudo systemctl enable linkshortener.service
+sudo systemctl start linkshortner.service
+```
+
+3.1. Verify the status
+
+`sudo systemctl status linkshortener.service`
+
+3.2. (optional) Check the logs
+
+`journalctl -u linkshortener -f`
+
+3.3. Restart the service
+
+`sudo systemctl restart linkshortener`
+
+### Termux / pseudo-unix system
+
+1. Create the service structure
+
+```shell
+mkdir -p $PREFIX/var/service/linkshortener-worker
+mkdir -p $PREFIX/var/service/linkshortener-worker/log
+mkdir -p $PREFIX/var/service/linkshortener-worker/supervisor
+nano $PREFIX/var/service/linkshortener-worker/run
+```
+
+2. Write the following content
+
+```bash
+#!/data/data/com.termux/files/usr/bin/sh
+
+cd /data/data/com.termux/files/home/tu_proyecto
+
+# Manten el dispositivo despierto
+termux-wake-lock
+
+# Inicia el worker
+exec php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+```
+
+3. Give the right permissions
+
+`chmod +x $PREFIX/var/service/linkshortener-worker/run`
+
+4. Start the service
+
+`sv up linkshortener-worker`
+
+4.1. Check the status
+
+`sv status linkshortener-worker`
+
+4.2. Start automatically at termux start
+
+`sv-enable linkshortener-worker`
