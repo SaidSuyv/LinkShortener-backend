@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use App\Jobs\DeleteItemsJob;
+use App\Jobs\RestoreItemsJobs;
+use App\Jobs\HardDeleteItemsJobs;
 use Throwable;
 
 class LinkController extends Controller
@@ -205,6 +207,68 @@ class LinkController extends Controller
         return $this->successResponse([
             "batch_id" => $batch->id,
             "message" => "Eliminación masiva en progreso. Puedes consultar el progreso del batch."
+        ]);
+    }
+
+    /**
+     * Restores in bulk
+     */
+    public function restoreBulk(Request $request)
+    {
+        $items = collect($request->items);
+
+        $pendingBatch = Bus::batch([])
+        ->then(function(Batch $bt){
+            Log::info("Batch completo: {$bt->id}");
+        })
+        ->catch(function(Batch $bt, Throwable $e){
+            Log::error("Batch falló: {$bt->id}, error: {$e->getMessage()}");
+        })
+        ->finally(function(Batch $bt){
+            Log::info("Batch finalizado {$bt->id}");
+        });
+
+        $items->chunk(50)
+        ->each(function($chunk) use ($pendingBatch){
+            $pendingBatch->add(new RestoreItemsJobs($chunk->toArray()));
+        });
+
+        $batch = $pendingBatch->dispatch();
+
+        return $this->successResponse([
+            'batch_id' => $batch->id,
+            'message' => 'Restauración en progres. Puedes consultar el progreso del batch'
+        ]);
+    }
+
+    /**
+     * Hard Deletes in Bulk
+     */
+    public function hardDeleteBulk(Request $request)
+    {
+        $items = collect($request->items);
+
+        $pendingBatch = Bus::batch([])
+        ->then(function(Batch $bt){
+            Log::info("Batch completo: {$bt->id}");
+        })
+        ->catch(function(Batch $bt, Throwable $e){
+            Log::error("Batch falló: {$bt->id}, error: {$e->getMessage()}");
+        })
+        ->finally(function(Batch $bt){
+            Log::info("Batch finalizado {$bt->id}");
+        });
+
+        $items->chunk(50)
+        ->each(function($chunk) use ($pendingBatch){
+            $pendingBatch->add(new HardDeleteItemsJobs($chunk->toArray()));
+        });
+
+        $batch = $pendingBatch->dispatch();
+
+        return $this->successResponse([
+            'batch_id' => $batch->id,
+            'message' => 'Restauración en progres. Puedes consultar el progreso del batch'
         ]);
     }
 }

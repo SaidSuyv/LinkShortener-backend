@@ -13,7 +13,7 @@ class LinkSeeder extends Seeder
      */
     public function run(): void
     {
-        Link::factory()->count(100)->create([
+        Link::factory()->count(1000)->create([
             'user_id' => 1
         ]);
     }
