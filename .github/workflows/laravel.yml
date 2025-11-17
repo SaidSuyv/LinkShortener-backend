@@ -29,8 +29,9 @@ jobs:
           php artisan route:cache
           php artisan view:cache
 
-      - name: Upload via rsync over SSH
-        uses: burnett01/rsync-deployments@3
+      - uses: actions/checkout@v3
+      - name: rsync deployments
+        uses: burnett01/rsync-deployments@7.1.0
         with:
           switches: -avzr --delete
           path: ./
