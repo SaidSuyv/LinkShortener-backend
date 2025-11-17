@@ -9,12 +9,13 @@ use App\Http\Controllers\LinkController;
 use App\Http\Controllers\PasswordResetController;
 
 Route::post("login", [AuthController::class, "login"]);
-Route::get("logout",[AuthController::class,"logout"]);
 Route::post("register", [UserController::class, "register"]);
 Route::post('forgot-password', [PasswordResetController::class,'sendResetLink']);
 Route::post('reset-password', [PasswordResetController::class, 'resetPassword']);
 
 Route::middleware(["auth:sanctum"])->group(function(){
+    Route::get("logout",[AuthController::class,"logout"]);
+
     Route::controller(UserController::class)
     ->prefix('/user')
     ->group(function(){
