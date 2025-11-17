@@ -30,7 +30,7 @@ jobs:
           php artisan view:cache
 
       - name: Upload via rsync over SSH
-        uses: burnett01/rsync-deployments@3.4.1
+        uses: burnett01/rsync-deployments@3
         with:
           switches: -avzr --delete
           path: ./
