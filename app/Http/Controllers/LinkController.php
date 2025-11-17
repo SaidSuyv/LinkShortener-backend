@@ -162,6 +162,57 @@ class LinkController extends Controller
     }
 
     /**
+     * Keep Link alive
+     */
+    public function keepAlive(Request $request, Link $link)
+    {
+        DB::beginTransaction();
+        try{
+            $rules = [
+                'isAlive' => 'required|boolean'
+            ];
+
+            $messages = [
+                'isAlive.required' => 'El campo isAlive es obligatorio',
+                'isAlive.boolean' => 'El campo isAlive no es boolean'
+            ];
+
+            $this->validate($request, $rules, $messages);
+
+            $isAlive = $request->isAlive;
+
+            if($isAlive) // delete expiration
+            {
+                if($link->expiration_at == null)
+                    return $this->errorResponse('Link is already alive', 422);
+
+                $link->update([
+                    'expiration_at' => null
+                ]);
+            }
+            else // restablish expiration
+            {
+                if($link->expiration_at != null)
+                    return $this->errorResponse('Link is already not alive', 422);
+
+                $createdAt = Carbon::parse($link->created_at);
+                $expirationAt = $createdAt->addDays(15);
+                $link->update([
+                    'expiration_at' => $expirationAt
+                ]);
+            }
+
+            DB::commit();
+            return $this->successResponse("Link has changed status");
+        }
+        catch(Exception $e)
+        {
+            DB::rollBack();
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    /**
      *  Checks Batch Status
      */
     public function batchStatus($id)

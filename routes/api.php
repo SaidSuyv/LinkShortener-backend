@@ -24,6 +24,7 @@ Route::middleware(["auth:sanctum"])->group(function(){
     Route::controller(LinkController::class)
     ->prefix("/link")
     ->group(function(){
+        // CRUD
         Route::get("/","index");
         Route::post("/","store");
         Route::get("/{code}","show");
@@ -36,5 +37,8 @@ Route::middleware(["auth:sanctum"])->group(function(){
         Route::post('/bulk/delete','deleteBulk');
         Route::post('/bulk/restore','restoreBulk');
         Route::post('/bulk/hard-delete','hardDeleteBulk');
+
+        // Premium functions
+        Route::post('/keep/{link}','keepAlive');
     });
 });
